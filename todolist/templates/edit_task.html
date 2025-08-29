@@ -1,0 +1,96 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Tarea</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6">
+    <!-- Navbar -->
+<nav class="bg-white shadow mb-6">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="flex justify-between items-center h-16">
+      
+      <!-- Logo / Inicio -->
+      <div>
+        <a href="{% url 'task_list' %}" class="text-xl font-semibold text-blue-600 hover:text-blue-800">
+          📝 MiLista
+        </a>
+      </div>
+
+      <!-- Enlaces -->
+      <div class="flex items-center space-x-6">
+        <a href="{% url 'task_list' %}" class="text-gray-700 hover:text-blue-600">🏠 Inicio</a>
+        <a href="{% url 'profile_edit' %}" class="text-gray-700 hover:text-blue-600">👤 Perfil</a>
+        <form method="post" action="{% url 'logout' %}" class="inline">
+        {% csrf_token %}
+        <button type="submit" class="text-red-500 hover:text-red-700 bg-transparent border-none cursor-pointer p-0">
+          🚪 Logout
+        </button>
+      </form>
+
+
+        <!-- Avatar del usuario -->
+        {% if request.user.is_authenticated %}
+          {% if request.user.avatar %}
+            <img src="{{ request.user.avatar.url }}" class="h-8 w-8 rounded-full border" alt="Avatar">
+          {% else %}
+            <img src="{% static 'images/default_avatar.svg' %}" class="h-8 w-8 rounded-full border" alt="Avatar por defecto">
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="max-w-xl mx-auto bg-white p-6 rounded shadow">
+    <h2 class="text-2xl font-semibold mb-4">✏️ Editar tarea</h2>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <h3 class="font-semibold mt-4 mb-2">📷 Imágenes existentes</h3>
+        {{ image_formset.management_form }}
+        {% for form in image_formset %}
+            <div class="mb-4 border p-2 rounded">
+                {{ form.image.label_tag }}<br>
+                {% if form.instance.image %}
+                    <img src="{{ form.instance.image.url }}" class="w-32 h-32 object-cover mb-2 rounded">
+                {% endif %}
+                {{ form.image }}<br>
+                {{ form.DELETE }} Eliminar
+            </div>
+        {% endfor %}
+
+            <!-- Nuevas imágenes -->
+        <h3 class="font-semibold mt-4 mb-2">➕ Agregar nuevas imágenes (máximo 3 en total)</h3>
+
+        <div class="space-y-4 mb-6">
+
+        <div>
+            <label for="new_image_1">Imagen 1</label>
+            <input type="file" name="new_images" class="block mt-1">
+        </div>
+        <div>
+            <label for="new_image_2">Imagen 2</label>
+            <input type="file" name="new_images" class="block mt-1">
+        </div>
+        <div>
+            <label for="new_image_3">Imagen 3</label>
+            <input type="file" name="new_images" class="block mt-1">
+        </div>
+        </div>
+
+
+        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+            💾 Guardar cambios
+        </button>
+        <a href="{% url 'task_list' %}" class="ml-4 text-gray-600 hover:underline">Cancelar</a>
+    </form>
+</div>
+</body>
+</html>
+

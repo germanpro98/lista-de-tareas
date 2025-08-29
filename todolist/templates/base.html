@@ -1,0 +1,59 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}MiLista{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+  <!-- Navbar común -->
+<nav class="bg-white shadow mb-6">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="flex justify-between items-center h-16">
+
+      <!-- Logo / Inicio -->
+      <div>
+        <a href="{% url 'task_list' %}" class="text-xl font-semibold text-blue-600 hover:text-blue-800">
+          📝 To-Do-List
+        </a>
+      </div>
+
+      <!-- Enlaces -->
+      <div class="flex items-center space-x-6">
+        {% if request.path != '/' %}
+          <a href="{% url 'task_list' %}" class="text-gray-700 hover:text-blue-600">🏠 Inicio</a>
+        {% endif %}
+
+        <a href="{% url 'profile_edit' %}" class="text-gray-700 hover:text-blue-600">👤 Perfil</a>
+
+        <form method="post" action="{% url 'logout' %}" class="inline">
+          {% csrf_token %}
+          <button type="submit" class="text-red-500 hover:text-red-700 bg-transparent border-none cursor-pointer p-0">
+            🚪 Logout
+          </button>
+        </form>
+
+        {% if request.user.is_authenticated %}
+          {% if request.user.avatar %}
+            <img src="{{ request.user.avatar.url }}" class="h-8 w-8 rounded-full object-cover shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-300" alt="Avatar">
+          {% else %}
+            <img src="{% static 'images/default_avatar.svg' %}" class="h-8 w-8 rounded-full object-cover shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-300" alt="Avatar por defecto">
+          {% endif %}
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+</nav>
+
+
+  <!-- Contenido dinámico -->
+  <main class="max-w-2xl mx-auto px-4">
+    {% block content %}
+    {% endblock %}
+  </main>
+
+</body>
+</html>
