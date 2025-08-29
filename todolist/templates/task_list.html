@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mis Tareas{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 rounded shadow">
+  <h1 class="text-2xl font-bold mb-4 text-center">📋 Mis Tareas</h1>
+
+  <!-- Botón para desplegar -->
+  <div class="mb-4 text-center">
+    <button onclick="formDiv.classList.toggle('hidden')" class="bg-blue-600 text-white px-4 py-2 rounded">
+      ➕ Nueva tarea
+    </button>
+  </div>
+
+  <!-- Formulario oculto -->
+  <div id="formDiv" class="hidden mb-6">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ task_form.as_p }}
+      <div class="mb-2">{{ image_form.image1.label_tag }}<br>{{ image_form.image1 }}</div>
+      <div class="mb-2">{{ image_form.image2.label_tag }}<br>{{ image_form.image2 }}</div>
+      <div class="mb-2">{{ image_form.image3.label_tag }}<br>{{ image_form.image3 }}</div>
+      <button type="submit" class="mt-2 bg-green-500 text-white px-4 py-2 rounded">✅ Guardar</button>
+    </form>
+  </div>
+
+  <!-- Avatar + nombre -->
+  <div class="flex items-center gap-3 mb-4">
+    {% if request.user.avatar %}
+      <img src="{{ request.user.avatar.url }}" class="h-20 w-20 rounded-full object-cover shadow-md hover:shadow-xl hover:scale-105 transition-transform duration-300" alt="Avatar">
+    {% else %}
+      <img src="{% static 'images/default_avatar.svg' %}" class="h-20 w-20 rounded-full bg-gray-100 p-1 object-contain shadow-md" alt="Avatar por defecto">
+    {% endif %}
+    <p class="text-sm text-gray-800 font-medium">👤 {{ request.user.username }}</p>
+  </div>
+
+  <!-- Lista de tareas -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+  {% for task in tasks %}
+    <div class="bg-gray-50 p-4 rounded shadow hover:shadow-lg transition hover:bg-white">
+      
+      <!-- Formulario para completar tarea -->
+      <form method="post" action="{% url 'complete_task' task.pk %}" class="mb-2">
+        {% csrf_token %}
+        <input type="checkbox" name="completed" onchange="this.form.submit()" 
+          {% if task.completed %}checked{% endif %} 
+          class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+      </form>
+
+      <!-- Imágenes asociadas a la tarea -->
+      {% for img in task.images.all %}
+        <img src="{{ img.image.url }}" alt="Imagen tarea" class="h-40 w-40 object-cover rounded mb-2">
+      {% empty %}
+        <div class="h-40 w-40 flex items-center justify-center bg-gray-200 text-gray-400 mb-2 rounded">
+          Sin imagen
+        </div>
+      {% endfor %}
+
+      <!-- Título -->
+      <h2 class="text-lg font-semibold text-black mb-1 text-center 
+                 {% if task.completed %}line-through text-gray-500{% endif %}">
+        {{ task.title }}
+      </h2>
+
+      <!-- Descripción (opcional) -->
+      {% if task.description %}
+        <p class="text-sm text-gray-700 mb-2 text-center">{{ task.description }}</p>
+      {% endif %}
+
+      <!-- Parte inferior: botones -->
+      <div class="mt-auto pt-4 flex justify-between items-center">
+        <a href="{% url 'edit_task' task.id %}" class="text-blue-600 hover:text-blue-800 text-sm">✏️ Editar</a>
+        <a href="{% url 'delete_task' task.id %}" 
+           class="text-red-500 hover:bg-red-100 px-3 py-1 rounded text-sm transition"
+           title="Eliminar tarea">
+          🗑️ Eliminar
+        </a>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+
+<script>
+  const formDiv = document.getElementById('formDiv');
+</script>
+{% endblock %}
+
+
